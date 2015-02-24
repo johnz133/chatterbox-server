@@ -14,18 +14,25 @@ var validUrl = {
   "/classes/room" : true
 };
 
-var processPost = function(request) {
+var processPost = function(request, response, statusCode) {
   var queryData = "";
-  request.on('data', function(data){
-    queryData += data;
+  request.on('data', function(data1){
+    queryData += data1;
   });
   request.on('end', function(){
     var message = JSON.parse(queryData);
     message.objectId = dataArray.length+1;
     dataArray.push(message);
+    endRequest(request, response, JSON.stringify({"results":dataArray}), statusCode);
   });
 };
 
+var endRequest = function(request, response, data, statusCode){
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = "text/plain";
+  response.writeHead(statusCode, headers);
+  response.end(data);
+};
 
 exports.requestHandler = function(request, response) {
   var method = request.method;
@@ -33,19 +40,21 @@ exports.requestHandler = function(request, response) {
 
   if(!validUrl[request.url]){
     statusCode = 404;
+    endRequest(request, response, data, statusCode);
   } else if(request.method === "POST"){
     statusCode = 201;
-    processPost(request);
+    processPost(request, response, statusCode);
   } else if(request.method === "GET"){
     data = JSON.stringify({'results':dataArray});
     statusCode = 200;
+    endRequest(request, response, data, statusCode);
   } else if(request.method === "OPTIONS"){
     statusCode = 200;
+    endRequest(request, response, data, statusCode);
   }
 
-  var headers = defaultCorsHeaders;
-  headers['Content-Type'] = "text/plain";
-  response.writeHead(statusCode, headers);
-  response.end(data);
+
+
+
 };
 
