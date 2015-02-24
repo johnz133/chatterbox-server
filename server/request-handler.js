@@ -12,7 +12,9 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var requestHandler = function(request, response) {
+exports.requestHandler = function(request, response) {
+  var method = request.method;
+  var mabel = requestHelper(request);
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -27,10 +29,9 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
-  console.log("Serving request type " + request.method + " for url " + request.url);
 
   // The outgoing status.
-  var statusCode = 200;
+  // var statusCode = 200;
 
   // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
@@ -43,8 +44,10 @@ var requestHandler = function(request, response) {
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
-
+  response.writeHead(mabel.statusCode, headers);
+  // if (mabel.methodType === "GET"){
+    // response.write(mabel.data);
+  // }
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -52,7 +55,7 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+  response.end(mabel.data);
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -71,3 +74,56 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
+var dataArray = [];
+
+var requestHelper = function(request) {
+  var result = {
+    statusCode: 404,
+    methodType: request.method,
+    url: request.url,
+    options: {},
+    data: ""
+  };
+
+  var validUrl = {
+    "/classes/messages" : true,
+    "/classes/messages/" : true,
+    "/classes/room1" : true,
+    "/classes/room" : true
+  };
+
+  if(!validUrl[result.url]){
+    return result;
+  };
+
+  if(result.methodType === "GET"){
+    result.data = JSON.stringify({'results':dataArray});
+    // console.log(result.data, typeof result.data);
+    // console.log(dataArray);
+    // result.data = processGet;
+    result.statusCode = 200;
+  };
+
+  if(result.methodType === "POST"){
+    result.statusCode = 201;
+    processPost(request);
+  };
+
+  if(result.methodType === "OPTIONS"){
+    result.statusCode = 200;
+  };
+
+  return result;
+};
+
+var processPost = function(request) {
+  var queryData = "";
+    request.on('data', function(data){
+      queryData += data;
+    });
+    request.on('end', function(){
+      var message = JSON.parse(queryData);
+      message.objectId = dataArray.length+1;
+      dataArray.push(message);
+    });
+};
