@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>chatterbox</title>
+    <link rel="stylesheet" href="styles/styles.css">
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
+    <script src="bower_components/backbone/backbone.js"></script>
+    <script src="scripts/Room.js"></script>
+    <script src="scripts/Rooms.js"></script>
+    <script src="scripts/FormView.js"></script>
+    <script src="scripts/Message.js"></script>
+    <script src="scripts/Messages.js"></script>
+    <script src="scripts/MessagesView.js"></script>
+    <script src="scripts/MessageView.js"></script>
+    <script src="scripts/RoomView.js"></script>
+    <script src="scripts/RoomsView.js"></script>
+    <script src="env/config.js"></script>
+    <script src="scripts/App.js"></script>
+    <script src="scripts/AppView.js"></script>
+  </head>
+  <body>
+    <div id="main">
+      <h1>chatter<em>box</em></h1>
+      <!-- Your HTML goes here! -->
+      <div class="spinner"><img src="images/spiffygif_46x46.gif"></div>
+
+
+      <form action="#" id="send" method="post">
+        <div id="roomSelector">
+          Room:
+          <select id="roomSelect">
+            <option value="lobby">lobby</option>
+            <option value="HRR4">HRR4</option>
+            <option value="Eddie's Room">Eddie's Room</option>
+            <option value="John's Room">John's Rooms</option>
+          </select>
+        </div>
+        <input type="text" name="message" id="message"/>
+        <input type="submit" name="submit" class="submit"/>
+      </form>
+    </div>
+    <div>
+      <div id="chats"></div>
+      <div id="rooms">Rooms List</div>
+    </div>
+    <script>
+      $(function(){
+        var app = new App();
+        var appView = new AppView({model: app});
+      });
+    </script>
+  </body>
+</html>
